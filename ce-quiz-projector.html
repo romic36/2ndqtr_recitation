@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Education Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .grade-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .grade-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .grade-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .grade-btn.active {
+            background: #764ba2;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .question-number {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .timer {
+            font-size: 2em;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .timer.warning {
+            color: #ff6b6b;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .question-box {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-text {
+            font-size: 1.8em;
+            color: #333;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .answer-box {
+            background: #e8f5e9;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+            border-left: 5px solid #4caf50;
+        }
+
+        .answer-box.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .answer-text {
+            font-size: 1.4em;
+            color: #2e7d32;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-show-answer {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-show-answer:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-next {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-back {
+            background: #9e9e9e;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #757575;
+        }
+
+        .summary-container {
+            display: none;
+        }
+
+        .summary-container.active {
+            display: block;
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .summary-header h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .summary-list {
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .summary-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .summary-question {
+            font-size: 1.2em;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .summary-answer {
+            font-size: 1.1em;
+            color: #2e7d32;
+            padding-left: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Computer Education Recitation Quiz</h1>
+            <p style="color: #666; font-size: 1.2em; margin-top: 10px;">Select a Grade Level to Begin</p>
+        </div>
+
+        <div class="grade-selector" id="gradeSelector">
+            <button class="grade-btn" onclick="selectGrade(7)">Grade 7</button>
+            <button class="grade-btn" onclick="selectGrade(8)">Grade 8</button>
+            <button class="grade-btn" onclick="selectGrade(9)">Grade 9</button>
+            <button class="grade-btn" onclick="selectGrade(10)">Grade 10</button>
+        </div>
+
+        <div class="quiz-container" id="quizContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-header">
+                <div class="question-number" id="questionNumber">Question 1 of 40</div>
+                <div class="timer" id="timer">10</div>
+            </div>
+
+            <div class="question-box">
+                <div class="question-text" id="questionText"></div>
+            </div>
+
+            <div class="answer-box" id="answerBox">
+                <div class="answer-text" id="answerText"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-show-answer" id="showAnswerBtn" onclick="showAnswer()">Show Answer</button>
+                <button class="btn btn-next" onclick="nextQuestion()">Next Question</button>
+                <button class="btn btn-back" onclick="backToGradeSelect()">Change Grade</button>
+            </div>
+        </div>
+
+        <div class="summary-container" id="summaryContainer">
+            <div class="summary-header">
+                <h2>🎉 Quiz Complete!</h2>
+                <p style="color: #666; font-size: 1.2em;">Here are all the questions and answers</p>
+            </div>
+            <div class="summary-list" id="summaryList"></div>
+            <div class="controls">
+                <button class="btn btn-back" onclick="backToGradeSelect()">Back to Grade Selection</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            7: [
+                {q: "What is the purpose of margins in a document?", a: "To frame the content and prevent the text from looking cluttered by creating blank space between the edge of the paper and the text."},
+                {q: "What are the two types of page orientation?", a: "Portrait (tall) and Landscape (wide)."},
+                {q: "What keyboard shortcut inserts a page break in Google Docs?", a: "Ctrl + Enter (or Cmd + Enter on Mac)."},
+                {q: "What is the difference between a row and a column in a table?", a: "A row is a horizontal set of cells, while a column is a vertical set of cells."},
+                {q: "What does merging cells in a table do?", a: "It combines two or more adjacent cells into a single, larger cell, often used for creating title bars."},
+                {q: "How do you insert a table in Google Docs?", a: "Click Insert → Table → Choose the desired size from the grid."},
+                {q: "What menu option is used to insert shapes in Google Docs?", a: "Insert → Drawing → New."},
+                {q: "What symbol must every spreadsheet formula begin with?", a: "An equals sign (=)."},
+                {q: "What does the SUM function do?", a: "It adds up a range of numbers to calculate the total."},
+                {q: "What does the AVERAGE function calculate?", a: "It finds the average (mean) of a range of numbers."},
+                {q: "What does the cell range B2:B5 mean?", a: "All cells from B2 up to and including B5."},
+                {q: "What is data visualization?", a: "The process of creating charts or graphs to present data visually, making patterns and comparisons easier to understand."},
+                {q: "When should you use a pie chart?", a: "To show how parts relate to a whole, displaying what percentage or fraction each item is of the total."},
+                {q: "When should you use a bar chart?", a: "To compare different categories side-by-side, showing which has the most or least values."},
+                {q: "How do you insert a chart in Google Sheets?", a: "Select the data, go to Insert → Chart, then customize using the Chart Editor."},
+                {q: "What is file management?", a: "The way you organize, name, and store your computer files to find work quickly and prevent losing important projects."},
+                {q: "What is the difference between Copy and Move operations?", a: "Copy creates a duplicate while the original stays in place; Move transfers the file and removes it from the old location."},
+                {q: "What happens when you delete a file?", a: "The file is sent to the Recycle Bin first, where it can still be recovered."},
+                {q: "Give an example of a good file name.", a: "Science_Project_Volcano_Oct15_2025.docx (descriptive, includes subject, topic, and date)."},
+                {q: "What is a file extension?", a: "The three or four letters after the dot in a filename that tells the computer what type of file it is."},
+                {q: "What program opens a .docx file?", a: "Microsoft Word or Google Docs."},
+                {q: "What program opens a .xlsx file?", a: "Microsoft Excel or Google Sheets."},
+                {q: "What is cloud storage?", a: "Saving files on internet servers instead of just on your physical computer, like having a secure virtual storage box."},
+                {q: "What is the primary advantage of cloud storage?", a: "Access Anywhere - you can access, share, and edit files from any device with an internet connection."},
+                {q: "How much free storage does Google Drive provide?", a: "15 GB of free storage space to each user."},
+                {q: "What file extension is used for images?", a: ".jpg or .png"},
+                {q: "What file extension is used for PDF files?", a: ".pdf (Portable Document Format)"},
+                {q: "Where do deleted files go before being permanently removed?", a: "The Recycle Bin, where they can still be retrieved."},
+                {q: "How do you change margins in Google Docs?", a: "Go to File → Page setup → Adjust margin measurements."},
+                {q: "How do you add or delete rows in a table?", a: "Right-click on a cell → Choose Insert row/column or Delete row/column."},
+                {q: "What are shapes used for in documents?", a: "To make documents more interesting and informative, often for creating simple diagrams."},
+                {q: "Name three basic shapes you can insert.", a: "Rectangle, Triangle, and Circle (or Lines and Arrows)."},
+                {q: "What is a cell in a table?", a: "The intersection of a row and a column, used to hold one piece of information."},
+                {q: "Why would you use landscape orientation?", a: "To fit content like wide tables or diagrams correctly on the page."},
+                {q: "What is the purpose of a page break?", a: "To separate a new chapter or major section by forcing content to start on a new page."},
+                {q: "What should be included in data labels when creating a chart?", a: "The labels (like names in Column A) and the numbers (like counts in Column B)."},
+                {q: "What is a folder used for?", a: "A directory used to store related files together, like a cabinet drawer."},
+                {q: "What makes a password strong?", a: "Length (minimum 12 characters), complexity (uppercase, lowercase, numbers, symbols), and uniqueness."},
+                {q: "Why is it important to have descriptive file names?", a: "To help you quickly identify and find your files without having to open them."},
+                {q: "What is the Chart Editor used for in Google Sheets?", a: "To customize the chart by choosing the chart type, adding titles, and adjusting other visual settings."}
+            ],
+            8: [
+                {q: "What is the main purpose of using multiple worksheets in a spreadsheet?", a: "To organize related data across different sheets, preventing the main sheet from getting too crowded."},
+                {q: "How do you create a new worksheet in Google Sheets?", a: "Click the plus sign (+) button at the bottom of the window."},
+                {q: "How do you rename a worksheet?", a: "Double-click the sheet tab (current name like 'Sheet1') to give it a descriptive name."},
+                {q: "What is the formula format for referencing data from another sheet?", a: "SheetName!CellAddress (e.g., Grades!B5), where the exclamation point (!) tells the program to look in the other sheet."},
+                {q: "What is data validation?", a: "A set of rules created in a spreadsheet to ensure the information entered is correct, helping prevent mistakes."},
+                {q: "Give an example of when you would use data validation.", a: "Setting a rule that a cell only accepts numbers between 0 and 100 to prevent entering invalid grades like 105 or text like 'Passed'."},
+                {q: "How do you set up data validation in Google Sheets?", a: "Select the cells, go to the Data menu, select Data validation, then choose your rule (like only numbers or items from a list)."},
+                {q: "What is dirty data?", a: "Data that contains errors or inconsistencies, like misspellings or wrong formatting."},
+                {q: "What does sorting data do?", a: "Arranges data in a specific order, like alphabetical (A to Z) or numerical (largest to smallest)."},
+                {q: "What does filtering data do?", a: "Allows you to display only the rows that meet certain criteria, temporarily hiding the rest."},
+                {q: "Give an example of when you would use filtering.", a: "Showing only students who live in a specific barangay, or displaying only scores above a certain grade."},
+                {q: "What is a simple report?", a: "A concise (short and clear) presentation of filtered data to help people understand information quickly."},
+                {q: "What are summaries in spreadsheets?", a: "Calculations using functions like SUM or AVERAGE to give an overall picture of the data."},
+                {q: "What is data privacy?", a: "The importance of protecting personal data when it is collected and stored."},
+                {q: "What is personal data?", a: "Information that can identify you, such as your full name, address, student ID, or contact number."},
+                {q: "What is the core rule when creating reports with personal data?", a: "Only include personal data if you really need to show it; summary reports with only totals are safer to share."},
+                {q: "How can AI help with data visualization?", a: "AI tools can automatically suggest or generate relevant charts and summaries from raw data, faster than manually choosing."},
+                {q: "What is anomaly detection?", a: "The concept of AI spotting unusual patterns or errors in your data that deviate from what is standard or expected."},
+                {q: "What is data cleaning?", a: "The process of fixing all errors (like misspellings or wrong formatting) to make data usable."},
+                {q: "How can AI assist with data cleaning?", a: "AI tools can help identify and fix errors in very large datasets automatically."},
+                {q: "What does 'concise' mean in the context of reports?", a: "Short and clear, containing only essential information."},
+                {q: "What is a worksheet in a spreadsheet file?", a: "A single page within a spreadsheet file, used to organize related data."},
+                {q: "Why is preventing dirty data important?", a: "It ensures everyone enters information consistently, making analysis accurate and reliable."},
+                {q: "Give an example of alphabetical ascending sorting.", a: "Arranging names in order from A to Z."},
+                {q: "Give an example of numerical descending sorting.", a: "Arranging test scores from highest to lowest (largest to smallest)."},
+                {q: "What is the purpose of summaries in data analysis?", a: "To show overall pictures of data, like the total number of students in an activity or average scores."},
+                {q: "Why might Report B (summary only) be better to share than Report A (with names)?", a: "Report B is safer because it doesn't include personal data that could identify individuals, protecting privacy."},
+                {q: "What does AI suggest when doing data visualization?", a: "AI can suggest the best chart type (like a bar chart instead of pie chart) to show the most important insights."},
+                {q: "What is an anomaly in a dataset?", a: "Something that deviates from what is standard, normal, or expected in a set of data."},
+                {q: "What are the two main data analysis tools covered in Grade 8?", a: "Sorting and Filtering."},
+                {q: "How does data validation prevent mistakes?", a: "It sets rules so only valid data can be entered, stopping errors before they happen."},
+                {q: "What symbol is used in sheet references?", a: "The exclamation point (!) separates the sheet name from the cell address."},
+                {q: "Why would you use multiple worksheets instead of one large sheet?", a: "To keep data organized by category and prevent the sheet from becoming too crowded and confusing."},
+                {q: "What happens when you filter data?", a: "Rows that don't meet the criteria are temporarily hidden, not deleted."},
+                {q: "What type of data should trigger extra privacy considerations?", a: "Personal data that can identify individuals, like names, addresses, student IDs, or contact numbers."},
+                {q: "How does AI make data visualization faster?", a: "AI automatically suggests or generates appropriate charts without requiring manual selection and configuration."},
+                {q: "What is the benefit of using functions for summaries?", a: "They automatically calculate totals or averages, reducing manual work and errors."},
+                {q: "What does ascending order mean?", a: "Arranged from smallest to largest (for numbers) or A to Z (for text)."},
+                {q: "What does descending order mean?", a: "Arranged from largest to smallest (for numbers) or Z to A (for text)."},
+                {q: "Why is clean data important for AI?", a: "AI needs consistent, error-free data to make accurate predictions and provide reliable insights."}
+            ],
+            9: [
+                {q: "What does VLOOKUP stand for?", a: "Vertical Lookup - it searches for a value in the first column of a range and returns a value from a specified column in the same row."},
+                {q: "When should you use VLOOKUP instead of HLOOKUP?", a: "When your data is organized in columns (most common), with lookup values in the leftmost column."},
+                {q: "What does HLOOKUP stand for?", a: "Horizontal Lookup - it searches for a value in the first row and returns a value from a specified row in the same column."},
+                {q: "What are the four parameters of VLOOKUP?", a: "search_key (value to find), range (table array), index (column number), and is_sorted (match type, use FALSE for exact match)."},
+                {q: "What should is_sorted be set to for exact matches in VLOOKUP?", a: "FALSE - this ensures an exact match is required."},
+                {q: "What does the MAX function do?", a: "Returns the largest value in a range."},
+                {q: "What does the MIN function do?", a: "Returns the smallest value in a range."},
+                {q: "What does the MEDIAN function do?", a: "Returns the middle value in a range of numbers."},
+                {q: "What does the COUNTBLANK function do?", a: "Counts the number of empty cells in a range."},
+                {q: "What is a Pivot Table?", a: "An interactive table that summarizes and analyzes large datasets to quickly find trends, totals, or averages."},
+                {q: "What goes in the ROWS area of a Pivot Table?", a: "Categories you want to group by and see listed down the left side, like Product Name or Student Section."},
+                {q: "What goes in the VALUES area of a Pivot Table?", a: "The numbers you want to calculate, such as SUM, AVERAGE, or COUNT (e.g., Total Sales, Average Grade)."},
+                {q: "What goes in the FILTERS area of a Pivot Table?", a: "Options to narrow down the data before the pivot table calculates, like showing only data for 'Luzon' or a specific date."},
+                {q: "What is a scatter plot used for?", a: "To show the relationships between two numerical variables, like study time vs. exam scores or height vs. weight."},
+                {q: "What is a combo chart?", a: "A chart that combines different chart types (like columns and lines) to show different scales of data together."},
+                {q: "What is a histogram used for?", a: "To show the distribution of data, like grade distribution in a class."},
+                {q: "Name three chart design best practices.", a: "Use a clear title, ensure labeled axes with units, and provide a legend to explain colors/symbols."},
+                {q: "What is data storytelling?", a: "Presenting data in a narrative format with context and meaning, combining data (facts), visuals (charts), and narrative (the story)."},
+                {q: "What are the three elements of effective data storytelling?", a: "Context (why data is important), Conflict/Finding (problem or insight), and Resolution/Recommendation (action to take)."},
+                {q: "What is phishing?", a: "A deceptive attempt, usually through fake emails or websites, to trick you into revealing sensitive information like passwords or PII."},
+                {q: "What is the best defense against phishing?", a: "NEVER click on suspicious links and check the sender's email address carefully."},
+                {q: "What is malware?", a: "Malicious software designed to damage your computer, steal information, or lock your files and demand payment (like ransomware)."},
+                {q: "What is the best defense against malware?", a: "Install and keep an antivirus/anti-malware program updated."},
+                {q: "What is social engineering?", a: "Tricking people into breaking normal security procedures by manipulating human psychology, like pretending to be someone they trust."},
+                {q: "What is PII?", a: "Personally Identifiable Information - any information that can be used to identify, distinguish, or trace a specific individual."},
+                {q: "What is direct PII?", a: "Information that can identify a person on its own, like a passport number or full name with address."},
+                {q: "What is indirect PII?", a: "Information that cannot identify a person alone but can when combined with other data, like date of birth combined with school name."},
+                {q: "What three characteristics make a strong password?", a: "Length (minimum 12 characters), Complexity (mix of uppercase, lowercase, numbers, symbols), and Uniqueness (never reuse passwords)."},
+                {q: "Why is protecting PII crucial?", a: "If it falls into the wrong hands, it can lead to identity theft and fraud."},
+                {q: "What is the Privacy vs. Utility ethical challenge?", a: "Using vast amounts of data for AI effectiveness (utility) while still protecting individual privacy."},
+                {q: "Why do AI systems need large datasets?", a: "AI needs large datasets to learn and improve, but this data often contains sensitive PII."},
+                {q: "How does AI help with cybersecurity?", a: "AI is great at finding patterns to detect threats, like analyzing millions of emails for phishing patterns or monitoring network activity for malware."},
+                {q: "Why should you use appropriate scale in charts?", a: "To avoid distorting the data and ensure accurate visual representation."},
+                {q: "What is the purpose of a legend in a chart?", a: "To explain what colors or symbols mean in the visualization."},
+                {q: "Give an example of when to use a combo chart.", a: "Showing sales amount (columns) and profit margin (line) together on different scales."},
+                {q: "What is the index parameter in VLOOKUP?", a: "The column number in the range from which to return a value, numbered starting from 1."},
+                {q: "What area in a Pivot Table goes across the top?", a: "COLUMNS - for additional grouping like Month or Region (optional)."},
+                {q: "What makes data storytelling effective?", a: "Combining factual data with visual charts and a compelling narrative that provides context and recommendations."},
+                {q: "How can you identify a phishing email?", a: "Check for suspicious links, verify the sender's email address carefully, and look for unusual requests for personal information."},
+                {q: "What should you do if asked for PII over the phone or email?", a: "Be suspicious of unsolicited requests and verify the identity of the requester through official channels before sharing any information."}
+            ],
+            10: [
+                {q: "What is a variable in Python?", a: "A named container used to store different types of information in a computer's memory."},
+                {q: "What are the three basic data types in Python?", a: "String (str) for text, Integer (int) for whole numbers, and Float (float) for decimal numbers."},
+                {q: "What keyword is used for conditional statements in Python?", a: "if - executes code if the condition is True, along with else for False conditions."},
+                {q: "What is the difference between a for loop and a while loop?", a: "A for loop is used when you know the number of repetitions; a while loop continues as long as a condition is True."},
+                {q: "What keyword is used to define a function in Python?", a: "def - followed by the function name and parameters."},
+                {q: "What is a parameter in a function?", a: "A value passed into the function when it is called, like the name in greet(name)."},
+                {q: "What is a module in Python?", a: "A Python file containing pre-written code (functions, variables) that you can import and use in your own program."},
+                {q: "Give an example of a built-in Python module.", a: "The math module, which has functions for mathematical operations like square root (math.sqrt())."},
+                {q: "What is File I/O?", a: "Input/Output - the process of reading data from a file or writing data to a file."},
+                {q: "What does the 'w' parameter mean in file operations?", a: "Write mode - used to write data to a file, while 'r' means read mode."},
+                {q: "What is Pandas?", a: "A powerful Python library designed for data analysis and manipulation of tabular data."},
+                {q: "What is a DataFrame in Pandas?", a: "The main data structure in Pandas, like a highly functional spreadsheet or table with rows and columns."},
+                {q: "How do you import the Pandas library?", a: "import pandas as pd - importing with the common alias 'pd'."},
+                {q: "What does pd.read_csv() do?", a: "Loads data from a CSV file into a DataFrame."},
+                {q: "What does the .head() method display?", a: "The first 5 rows of the DataFrame."},
+                {q: "What does the .tail() method display?", a: "The last 5 rows of the DataFrame."},
+                {q: "What does the .columns attribute do?", a: "Lists all the column names in the DataFrame."},
+                {q: "What is data cleaning?", a: "The process of fixing errors, filling missing values, and ensuring data is consistent and usable."},
+                {q: "What method is used to handle missing values in Pandas?", a: ".fillna() - replaces missing (empty) values with a specified value, like the column average."},
+                {q: "What is feature engineering?", a: "Creating a new column (a feature) from existing data, like calculating Projected Profit from Daily Sales."},
+                {q: "How do you fix data types in Pandas?", a: "Use .str.replace() to remove non-numeric characters and .astype(float) or .astype(int) to convert the column's data type."},
+                {q: "What is data filtering in Pandas?", a: "Selecting only the rows that meet specific criteria using bracket notation data[condition]."},
+                {q: "What does .sum() do in data aggregation?", a: "Calculates the total sum of a column."},
+                {q: "What does .mean() do in data aggregation?", a: "Calculates the average of a column."},
+                {q: "What does .mode() do in data aggregation?", a: "Finds the most frequent value (the mode) in a column."},
+                {q: "How does AI use data aggregation?", a: "AI systems use aggregation to synthesize vast amounts of data to provide high-level insights or predictions."},
+                {q: "What is data visualization?", a: "The process of transforming data into visual forms (charts, graphs) to quickly identify patterns and trends."},
+                {q: "Why is data visualization important for AI?", a: "It helps understand the performance and behavior of AI models, making their outputs interpretable."},
+                {q: "What is Explainable AI (XAI)?", a: "Making AI decisions understandable and transparent to humans, moving away from a 'black box' system."},
+                {q: "Why is XAI crucial in healthcare?", a: "Doctors need to understand the AI's reason for a diagnosis to make informed medical decisions and ensure patient safety."},
+                {q: "Why is XAI crucial in banking?", a: "Applicants have the right to know why a loan was denied, ensuring fairness and transparency in financial decisions."},
+                {q: "How do visualizations support XAI?", a: "Charts and graphs provide a visual explanation for the AI's derived insights, making complex decisions understandable."},
+                {q: "What is Tkinter?", a: "The simplest and most common built-in Python library for creating a Graphical User Interface (GUI)."},
+                {q: "What are widgets in GUI programming?", a: "Interactive elements in a graphical interface, such as buttons, labels, and text entry boxes."},
+                {q: "What is control flow in programming?", a: "The order in which a program's code is executed, managed by logic like if/else statements and loops."},
+                {q: "Why are functions important in programming?", a: "They create reusable blocks of code that perform specific actions, improving code organization and efficiency."},
+                {q: "What command is used to import a module?", a: "import followed by the module name, like import math."},
+                {q: "What does range(1, 6) produce in a for loop?", a: "It produces numbers 1, 2, 3, 4, 5 (the end number 6 is not included)."},
+                {q: "What is the purpose of the with statement in file operations?", a: "It ensures the file is properly opened and automatically closed after operations are complete, preventing data corruption."},
+                {q: "How do you call a function in Python?", a: "Write the function name followed by parentheses with any required arguments, like greet('Maria')."},
+                {q: "What makes a DataFrame similar to a spreadsheet?", a: "It organizes data in a tabular format with rows and columns, allowing for easy data manipulation and analysis."}
+            ]
+        };
+
+        let currentGrade = 0;
+        let currentQuestion = 0;
+        let timerInterval;
+        let timeLeft = 10;
+
+        function selectGrade(grade) {
+            currentGrade = grade;
+            currentQuestion = 0;
+            document.getElementById('gradeSelector').style.display = 'none';
+            document.getElementById('quizContainer').classList.add('active');
+            document.getElementById('summaryContainer').classList.remove('active');
+            
+            const buttons = document.querySelectorAll('.grade-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentGrade][currentQuestion];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of 40`;
+            document.getElementById('questionText').textContent = q.q;
+            document.getElementById('answerBox').classList.remove('show');
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
+            
+            updateProgress();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 10;
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = timeLeft;
+            timerEl.classList.remove('warning');
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                
+                if (timeLeft <= 3) {
+                    timerEl.classList.add('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        function showAnswer() {
+            const q = questions[currentGrade][currentQuestion];
+            document.getElementById('answerText').textContent = q.a;
+            document.getElementById('answerBox').classList.add('show');
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            clearInterval(timerInterval);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions[currentGrade].length) {
+                showSummary();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions[currentGrade].length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showSummary() {
+            clearInterval(timerInterval);
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('summaryContainer').classList.add('active');
+            
+            const summaryList = document.getElementById('summaryList');
+            summaryList.innerHTML = '';
+            
+            questions[currentGrade].forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'summary-item';
+                div.innerHTML = `
+                    <div class="summary-question">${index + 1}. ${item.q}</div>
+                    <div class="summary-answer"><strong>Answer:</strong> ${item.a}</div>
+                `;
+                summaryList.appendChild(div);
+            });
+        }
+
+        function backToGradeSelect() {
+            clearInterval(timerInterval);
+            currentGrade = 0;
+            currentQuestion = 0;
+            document.getElementById('gradeSelector').style.display = 'flex';
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('summaryContainer').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
